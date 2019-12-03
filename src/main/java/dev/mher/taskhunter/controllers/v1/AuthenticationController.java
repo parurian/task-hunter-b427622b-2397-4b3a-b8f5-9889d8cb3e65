@@ -32,10 +32,10 @@ public class AuthenticationController {
 
     @PostMapping("sign-up")
     public ResponseEntity signUp(
-            @RequestParam String email,
-            @RequestParam CharSequence password,
-            @RequestParam String firstName,
-            @RequestParam String lastName
+            @RequestBody String email,
+            @RequestBody CharSequence password,
+            @RequestBody String firstName,
+            @RequestBody String lastName
     ) {
 
         String ipAddress = requestUtils.getClientIp();
@@ -62,9 +62,9 @@ public class AuthenticationController {
 
     @PostMapping("sign-in")
     public ResponseEntity signIn(
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam Boolean rememberMe
+            @RequestBody String email,
+            @RequestBody String password,
+            @RequestBody Boolean rememberMe
     ) {
         boolean isAuthenticated = authenticationService.signIn(email, password, rememberMe);
         Map<String, Boolean> response = new HashMap<>();

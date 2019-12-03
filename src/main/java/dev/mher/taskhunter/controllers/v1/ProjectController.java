@@ -60,7 +60,7 @@ public class ProjectController {
 
     @PostMapping()
     public ResponseEntity createProject(
-            @RequestParam String name
+            @RequestBody String name
     ) {
         int userId = 26;
         try {
@@ -100,7 +100,7 @@ public class ProjectController {
     @PutMapping("{projectId}")
     public ResponseEntity updateProject(
             @PathVariable("projectId") Integer projectId,
-            @RequestParam String name
+            @RequestBody String name
     ) {
         int userId = 26;
         try {

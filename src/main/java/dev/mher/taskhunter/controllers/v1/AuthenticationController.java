@@ -79,6 +79,7 @@ public class AuthenticationController {
 
 }
 
+// TODO Refactor
 class SignInParams {
     private String email;
     private String password;

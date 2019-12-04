@@ -46,7 +46,7 @@ public class AuthenticationService {
 
     public boolean signUp(String email, CharSequence password, String firstName, String lastName, String ipAddress) {
         // hash password
-        String passwordHash = cryptoService.generateHash(password);
+        CharSequence passwordHash = cryptoService.generateHash(password);
 
         // create unique confirmation token
         String confirmationToken = UUID.randomUUID().toString();

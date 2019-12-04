@@ -5,6 +5,7 @@ import dev.mher.taskhunter.models.misc.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -48,6 +49,47 @@ public class TaskService {
     public TaskModel retrieve(Integer taskId) {
         try {
             return this.taskModel.retrieve(taskId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public TaskModel update(Task task) {
+        try {
+            TaskModel taskModel = this.retrieve(task.getTaskId());
+            if (taskModel == null) {
+                // invalid task
+                return null;
+            }
+            taskModel.setParentTaskId(task.getParentTaskId());
+            taskModel.setName(task.getName());
+            taskModel.setText(task.getText());
+            taskModel.setProjectId(task.getProjectId());
+            taskModel.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+            if (taskModel.update() == null) {
+                // unknown error
+                return null;
+            }
+            return taskModel;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    public Boolean delete(Integer taskId) {
+        try {
+            TaskModel taskModel = this.retrieve(taskId);
+            if (taskModel == null) {
+                // invalid task
+                return null;
+            }
+            if (!taskModel.delete()) {
+                // unknown error
+                return null;
+            }
+            return true;
         } catch (Exception e) {
             return null;
         }

@@ -1,7 +1,6 @@
 package dev.mher.taskhunter.controllers.v1;
 
 import dev.mher.taskhunter.models.ProjectModel;
-import dev.mher.taskhunter.services.AuthenticationService;
 import dev.mher.taskhunter.services.ProjectService;
 import dev.mher.taskhunter.utils.ResponseUtils;
 import org.slf4j.Logger;
@@ -24,9 +23,9 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("v1/projects")
+@RequestMapping("/v1/projects")
 public class ProjectController {
-    private final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+    private final Logger logger = LoggerFactory.getLogger(ProjectController.class);
 
     private final ProjectService projectService;
 
@@ -58,11 +57,11 @@ public class ProjectController {
 
     @PostMapping()
     public ResponseEntity createProject(
-            @RequestBody String name
+            @AuthenticationPrincipal Integer userId,
+            @RequestBody ProjectParams projectParams
     ) {
-        int userId = 26;
         try {
-            ProjectModel project = projectService.save(userId, name);
+            ProjectModel project = projectService.save(userId, projectParams.getName());
             if (project == null) {
                 return ResponseEntity.ok(new ResponseUtils(true, "INSERT_ERROR"));
             }
@@ -76,13 +75,12 @@ public class ProjectController {
     }
 
 
-    @GetMapping("{projectId}")
+    @GetMapping("/{projectId}")
     public ResponseEntity retrieveProject(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable("projectId") Integer projectId
     ) {
         try {
-            int userId = 26;
-
             ProjectModel project = projectService.retrieve(projectId, userId);
             if (project == null) {
                 return ResponseEntity.ok(new ResponseUtils(true, "RETRIEVE_ERROR"));
@@ -95,14 +93,14 @@ public class ProjectController {
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
     }
 
-    @PutMapping("{projectId}")
+    @PutMapping("/{projectId}")
     public ResponseEntity updateProject(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable("projectId") Integer projectId,
-            @RequestBody String name
+            @RequestBody ProjectParams projectParams
     ) {
-        int userId = 26;
         try {
-            ProjectModel project = projectService.update(projectId, userId, name);
+            ProjectModel project = projectService.update(projectId, userId, projectParams.getName());
             if (project == null) {
                 return ResponseEntity.ok(new ResponseUtils(true, "UPDATE_ERROR"));
             }
@@ -114,12 +112,11 @@ public class ProjectController {
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
     }
 
-
-    @DeleteMapping("{projectId}")
+    @DeleteMapping("/{projectId}")
     public ResponseEntity deleteProject(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable("projectId") Integer projectId
     ) {
-        int userId = 26;
         try {
             Boolean isDeleted = projectService.delete(projectId, userId);
             if (isDeleted == null) {
@@ -133,5 +130,12 @@ public class ProjectController {
             logger.error(e.getMessage(), e);
         }
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
+    }
+}
+
+class ProjectParams {
+    private String name;
+    public String getName() {
+        return name;
     }
 }

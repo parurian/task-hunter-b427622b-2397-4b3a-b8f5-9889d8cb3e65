@@ -1,4 +1,4 @@
-package dev.mher.taskhunter.models.responses;
+package dev.mher.taskhunter.models.misc;
 
 /**
  * User: MheR
@@ -8,7 +8,7 @@ package dev.mher.taskhunter.models.responses;
  * Package: dev.mher.taskhunter.models.responses.
  */
 public class Response {
-    boolean error;
+    private boolean error;
     private String message;
 
     public boolean isError() {

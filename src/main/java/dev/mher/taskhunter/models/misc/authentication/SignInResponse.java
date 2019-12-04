@@ -1,4 +1,6 @@
-package dev.mher.taskhunter.models.responses;
+package dev.mher.taskhunter.models.misc.authentication;
+
+import dev.mher.taskhunter.models.misc.Response;
 
 import java.util.HashMap;
 
@@ -34,8 +36,8 @@ public class SignInResponse extends Response {
 
     }
     public SignInResponse(HashMap<String, String> user, CharSequence accessToken) {
-        this.error= false;
-        this.user = user;
-        this.accessToken = accessToken;
+        this.setError(false);
+        this.setUser(user);
+        this.setAccessToken(accessToken);
     }
 }

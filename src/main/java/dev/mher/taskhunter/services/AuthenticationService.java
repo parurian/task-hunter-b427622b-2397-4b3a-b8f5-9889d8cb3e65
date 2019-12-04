@@ -1,7 +1,7 @@
 package dev.mher.taskhunter.services;
 
 import dev.mher.taskhunter.models.UserModel;
-import dev.mher.taskhunter.models.responses.SignInResponse;
+import dev.mher.taskhunter.models.misc.authentication.SignInResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

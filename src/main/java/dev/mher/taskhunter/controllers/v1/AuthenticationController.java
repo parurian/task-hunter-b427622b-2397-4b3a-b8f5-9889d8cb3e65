@@ -1,6 +1,6 @@
 package dev.mher.taskhunter.controllers.v1;
 
-import dev.mher.taskhunter.models.responses.SignInResponse;
+import dev.mher.taskhunter.models.misc.authentication.SignInResponse;
 import dev.mher.taskhunter.services.AuthenticationService;
 import dev.mher.taskhunter.utils.RequestUtils;
 import dev.mher.taskhunter.utils.ResponseUtils;

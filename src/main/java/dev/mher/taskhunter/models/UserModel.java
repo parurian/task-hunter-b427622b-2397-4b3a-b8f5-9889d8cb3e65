@@ -137,7 +137,6 @@ public class UserModel {
 
         boolean isOk = false;
 
-        StringBuilder passwordBuilder = new StringBuilder(getPassword());
 
         Connection con = null;
         PreparedStatement pst = null;
@@ -146,7 +145,7 @@ public class UserModel {
             con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
             pst.setString(1, getEmail());
-            pst.setString(2, passwordBuilder.toString());
+            pst.setString(2, getPassword().toString());
             pst.setString(3, getConfirmationToken());
             pst.setTimestamp(4, getConfirmationSentAt());
             pst.setString(5, getFirstName());

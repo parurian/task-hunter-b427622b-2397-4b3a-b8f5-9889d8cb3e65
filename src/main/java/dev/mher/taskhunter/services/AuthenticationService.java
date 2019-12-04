@@ -1,6 +1,7 @@
 package dev.mher.taskhunter.services;
 
 import dev.mher.taskhunter.models.UserModel;
+import dev.mher.taskhunter.models.responses.SignInResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -24,23 +26,30 @@ public class AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     private final EmailService emailService;
-
     private final UserModel userModel;
-
     private final CryptoService cryptoService;
+    private final JwtService jwtService;
 
 
     @Value("${app.frontend.baseUrl}")
     private String frontendBaseUrl;
 
     @Value("${auth.confirmationToken.lifetime}")
-    private int tokenLifetime;
+    private int confirmationTokenLifetimeDays;
+
+    @Value("${auth.signInToken.lifetime}")
+    private long signInTokenLifetimeSecs;
+
+    @Value("${jsonWebToken.lifetime}")
+    private long jwtTokenLifetime;
+
 
     @Autowired
-    public AuthenticationService(EmailService emailService, UserModel userModel, CryptoService cryptoService) {
+    public AuthenticationService(EmailService emailService, UserModel userModel, CryptoService cryptoService, JwtService jwtService) {
         this.emailService = emailService;
         this.userModel = userModel;
         this.cryptoService = cryptoService;
+        this.jwtService = jwtService;
     }
 
 
@@ -87,33 +96,51 @@ public class AuthenticationService {
         userModel.setConfirmationToken(token);
         userModel.setActive(true);
 
-        LocalDate daysBehind = LocalDate.now().minusDays(tokenLifetime);
+        LocalDate daysBehind = LocalDate.now().minusDays(confirmationTokenLifetimeDays);
         Timestamp interval = Timestamp.valueOf(daysBehind.atStartOfDay());
 
         return userModel.userConfirm(interval);
     }
 
-    public boolean signIn(String email, String password, Boolean rememberMe) {
-
+    public SignInResponse signIn(String email, String password, Boolean rememberMe) {
         UserModel user = userModel.findByEmail(email);
 
+        SignInResponse signInResponse = new SignInResponse();
+
+        // invalid email
         if (user == null) {
-            // invalid email
-            return false;
+            signInResponse.setError(true);
+            signInResponse.setMessage("INVALID_EMAIL");
+            return signInResponse;
         }
 
-        if (!cryptoService.compare(user.getPassword(), password)) {
-            // password does not match
-            return false;
+        if (!cryptoService.compare(password, user.getPassword())) {
+            signInResponse.setError(true);
+            signInResponse.setMessage("PASSWORD_DOES_NOT_MATCH");
+            return signInResponse;
+        }
+        long lifetime = rememberMe != null && rememberMe ? signInTokenLifetimeSecs : jwtTokenLifetime;
+
+        String subject = String.valueOf(user.getUserId());
+        CharSequence accessToken = jwtService.encode(subject, lifetime);
+
+        if (accessToken == null) {
+            signInResponse.setError(true);
+            signInResponse.setMessage("INTERNAL_ERROR");
+            return signInResponse;
         }
 
+        signInResponse.setError(false);
+        signInResponse.setMessage("OK");
+        signInResponse.setAccessToken(accessToken);
 
-        // use remember me for session duration setup
+        HashMap<String, String> userMap = new HashMap<>();
+        userMap.put("firstName", user.getFirstName());
+        userMap.put("lastName", user.getLastName());
+        userMap.put("email", user.getEmail());
+        signInResponse.setUser(userMap);
 
-
-
-
-        return true;
+        return signInResponse;
     }
 
 }

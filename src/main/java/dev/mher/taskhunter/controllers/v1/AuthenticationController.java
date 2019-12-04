@@ -1,9 +1,11 @@
 package dev.mher.taskhunter.controllers.v1;
 
-import dev.mher.taskhunter.utils.RequestUtils;
+import dev.mher.taskhunter.models.responses.SignInResponse;
 import dev.mher.taskhunter.services.AuthenticationService;
+import dev.mher.taskhunter.utils.RequestUtils;
 import dev.mher.taskhunter.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +20,7 @@ import java.util.Map;
  * Package: dev.mher.taskhunter.controllers.
  */
 @RestController
-@RequestMapping("v1/authentication")
+@RequestMapping("/v1/authentication")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -30,16 +32,13 @@ public class AuthenticationController {
         this.requestUtils = requestUtils;
     }
 
-    @PostMapping("sign-up")
+    @PostMapping("/sign-up")
     public ResponseEntity signUp(
-            @RequestBody String email,
-            @RequestBody CharSequence password,
-            @RequestBody String firstName,
-            @RequestBody String lastName
+            @RequestBody SignUpParams params
     ) {
 
         String ipAddress = requestUtils.getClientIp();
-        boolean isSent = authenticationService.signUp(email, password, firstName, lastName, ipAddress);
+        boolean isSent = authenticationService.signUp(params.getEmail(), params.getPassword(), params.getFirstName(), params.getLastName(), ipAddress);
 
         if (isSent) {
             Map<String, Boolean> response = new HashMap<>();
@@ -50,7 +49,7 @@ public class AuthenticationController {
     }
 
 
-    @GetMapping("confirm/{token}")
+    @GetMapping("/confirm/{token}")
     public ResponseEntity confirmUser(
             @PathVariable("token") String token
     ) {
@@ -60,16 +59,63 @@ public class AuthenticationController {
         return ResponseEntity.ok(new ResponseUtils(response));
     }
 
-    @PostMapping("sign-in")
+    @PostMapping("/sign-in")
     public ResponseEntity signIn(
-            @RequestBody String email,
-            @RequestBody String password,
-            @RequestBody Boolean rememberMe
+            @RequestBody SignInParams params
     ) {
-        boolean isAuthenticated = authenticationService.signIn(email, password, rememberMe);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("isAuthenticated", isAuthenticated);
-        return ResponseEntity.ok(new ResponseUtils(response));
+        SignInResponse signInResponse = authenticationService.signIn(params.getEmail(), params.getPassword(), params.getRememberMe());
+
+        if (signInResponse.isError()) {
+            return ResponseEntity.ok(new ResponseUtils(signInResponse.isError(), signInResponse.getMessage()));
+        }
+
+        CharSequence accessToken = signInResponse.getAccessToken();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Access-Token", accessToken.toString());
+
+        return ResponseEntity.ok().headers(responseHeaders).body(new ResponseUtils(signInResponse.getUser()));
     }
 
+}
+
+class SignInParams {
+    private String email;
+    private String password;
+    private Boolean rememberMe;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Boolean getRememberMe() {
+        return rememberMe;
+    }
+}
+
+class SignUpParams {
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
 }

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -36,12 +37,10 @@ public class ProjectController {
 
     @GetMapping()
     public ResponseEntity getProjects(
+            @AuthenticationPrincipal Integer userId,
             @RequestParam int offset,
             @RequestParam int limit
     ) {
-
-        int userId = 26;
-
         try {
             List<ProjectModel> projects = projectService.list(userId, limit, offset);
             if (projects == null) {
@@ -53,7 +52,6 @@ public class ProjectController {
             logger.info(e.getMessage());
             logger.error(e.getMessage(), e);
         }
-
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
     }
 

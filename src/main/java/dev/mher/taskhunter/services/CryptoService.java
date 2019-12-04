@@ -30,8 +30,8 @@ public class CryptoService {
         return encoder.encode(s);
     }
 
-    public boolean compare(CharSequence s, String hash) {
+    public boolean compare(CharSequence s, CharSequence hash) {
         final PasswordEncoder encoder = new BCryptPasswordEncoder(saltStrength);
-        return encoder.matches(s, hash);
+        return encoder.matches(s.toString(), hash.toString());
     }
 }

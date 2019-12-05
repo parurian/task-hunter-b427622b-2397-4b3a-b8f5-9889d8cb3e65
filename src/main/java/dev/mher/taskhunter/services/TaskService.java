@@ -1,7 +1,7 @@
 package dev.mher.taskhunter.services;
 
 import dev.mher.taskhunter.models.TaskModel;
-import dev.mher.taskhunter.models.misc.task.Task;
+import dev.mher.taskhunter.models.misc.task.CreateTaskParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class TaskService {
         this.taskModel = taskModel;
     }
 
-    public TaskModel save(Task task) {
+    public TaskModel save(CreateTaskParams task) {
         this.taskModel.setName(task.getName());
         this.taskModel.setText(task.getText());
         this.taskModel.setProjectId(task.getProjectId());
@@ -38,7 +38,7 @@ public class TaskService {
         }
     }
 
-    public List<TaskModel> list(int projectId, int limit, int offset) {
+    public List<TaskModel> list(Integer projectId, Integer limit, Integer offset) {
         try {
             return this.taskModel.list(projectId, limit, offset);
         } catch (Exception e) {
@@ -54,13 +54,14 @@ public class TaskService {
         }
     }
 
-    public TaskModel update(Task task) {
+    public TaskModel update(Integer taskId, CreateTaskParams task) {
         try {
-            TaskModel taskModel = this.retrieve(task.getTaskId());
-            if (taskModel == null) {
+            TaskModel model = taskModel.retrieve(taskId);
+            if (model == null) {
                 // invalid task
                 return null;
             }
+            taskModel.setTaskId(model.getTaskId());
             taskModel.setParentTaskId(task.getParentTaskId());
             taskModel.setName(task.getName());
             taskModel.setText(task.getText());
@@ -80,12 +81,12 @@ public class TaskService {
 
     public Boolean delete(Integer taskId) {
         try {
-            TaskModel taskModel = this.retrieve(taskId);
-            if (taskModel == null) {
+            TaskModel model = taskModel.retrieve(taskId);
+            if (model == null) {
                 // invalid task
                 return null;
             }
-            if (!taskModel.delete()) {
+            if (!taskModel.delete(model)) {
                 // unknown error
                 return null;
             }

@@ -1,11 +1,12 @@
 package dev.mher.taskhunter.models;
 
-import dev.mher.taskhunter.models.misc.task.Task;
 import dev.mher.taskhunter.utils.DataSourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +20,28 @@ import java.util.List;
  */
 
 @Component
-public class TaskModel extends Task {
+public class TaskModel {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskModel.class);
+
+
+    private Integer taskId;
+    private Integer projectId;
+    private Integer parentTaskId;
+    private String name;
+    private String text;
 
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    public TaskModel() {
+    private DataSource dataSource;
 
+    public TaskModel() {
+    }
+
+    @Autowired
+    public TaskModel(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public Timestamp getCreatedAt() {
@@ -46,6 +60,47 @@ public class TaskModel extends Task {
         this.updatedAt = updatedAt;
     }
 
+    public Integer getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Integer taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+
+    public Integer getParentTaskId() {
+        return parentTaskId;
+    }
+
+    public void setParentTaskId(Integer parentTaskId) {
+        this.parentTaskId = parentTaskId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+
     public TaskModel save() {
         String queryString = "INSERT INTO tasks (project_id, parent_task_id, name, text)\n" +
                 "VALUES (?, ?, ?, ?)\n" +
@@ -56,12 +111,12 @@ public class TaskModel extends Task {
         ResultSet rs = null;
         try {
 
-            con = this.getDataSource().getConnection();
+            con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
             pst.setInt(1, this.getProjectId());
-            pst.setInt(1, this.getParentTaskId());
-            pst.setString(2, this.getName());
-            pst.setString(3, this.getText());
+            pst.setObject(2, this.getParentTaskId());
+            pst.setString(3, this.getName());
+            pst.setString(4, this.getText());
 
             rs = pst.executeQuery();
             if (rs != null && rs.next()) {
@@ -78,7 +133,7 @@ public class TaskModel extends Task {
     }
 
 
-    public List<TaskModel> list(int limit, int offset, int projectId) {
+    public List<TaskModel> list(Integer projectId, Integer limit, Integer offset) {
         String queryString = "SELECT task_id AS \"taskId\",\n" +
                 "       parent_task_id AS \"parentTaskId\",\n" +
                 "       project_id AS \"projectId\",\n" +
@@ -98,11 +153,11 @@ public class TaskModel extends Task {
         List<TaskModel> tasks = new ArrayList<>();
         try {
 
-            con = this.getDataSource().getConnection();
+            con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
 
-            pst.setInt(1, projectId);
-            pst.setInt(2, projectId);
+            pst.setObject(1, projectId);
+            pst.setObject(2, projectId);
             pst.setInt(3, limit);
             pst.setInt(4, offset);
 
@@ -110,9 +165,10 @@ public class TaskModel extends Task {
             if (rs != null) {
                 while (rs.next()) {
                     TaskModel task = new TaskModel();
+
                     task.setTaskId(rs.getInt("taskId"));
                     task.setProjectId(rs.getInt("projectId"));
-                    task.setParentTaskId(rs.getInt("name"));
+                    task.setParentTaskId(rs.getInt("parentTaskId"));
                     task.setName(rs.getString("name"));
                     task.setText(rs.getString("text"));
                     task.setCreatedAt(rs.getTimestamp("createdAt"));
@@ -147,7 +203,7 @@ public class TaskModel extends Task {
         ResultSet rs = null;
         try {
 
-            con = this.getDataSource().getConnection();
+            con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
             pst.setInt(1, taskId);
             rs = pst.executeQuery();
@@ -157,7 +213,7 @@ public class TaskModel extends Task {
 
                 task.setTaskId(rs.getInt("taskId"));
                 task.setProjectId(rs.getInt("projectId"));
-                task.setParentTaskId(rs.getInt("name"));
+                task.setParentTaskId(rs.getInt("parentTaskId"));
                 task.setName(rs.getString("name"));
                 task.setText(rs.getString("text"));
                 task.setCreatedAt(rs.getTimestamp("createdAt"));
@@ -183,14 +239,15 @@ public class TaskModel extends Task {
         PreparedStatement pst = null;
         boolean isUpdated = false;
         try {
-            con = this.getDataSource().getConnection();
+            con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
 
             pst.setInt(1, this.getProjectId());
-            pst.setInt(2, this.getParentTaskId());
+            pst.setObject(2, this.getParentTaskId());
             pst.setString(3, this.getName());
             pst.setString(4, this.getText());
             pst.setTimestamp(5, this.getUpdatedAt());
+
             pst.setInt(6, this.getTaskId());
 
             isUpdated = pst.executeUpdate() != 0;
@@ -207,15 +264,13 @@ public class TaskModel extends Task {
     }
 
 
-    public boolean delete() throws SQLException {
+    public boolean delete(TaskModel model) throws SQLException {
         Connection conn = null;
         try {
-            conn = this.getDataSource().getConnection();
+            conn = dataSource.getConnection();
             conn.setAutoCommit(false);
-            // delete owners
-            this.deleteSubTasks(conn);
-            this.deleteTaskById(conn);
-            // finalize transaction
+            model.deleteSubTasks(conn);
+            model.deleteTaskById(conn);
             conn.commit();
         } catch (SQLException e) {
             logger.error(e.getMessage());
@@ -232,7 +287,7 @@ public class TaskModel extends Task {
     private boolean deleteSubTasks(Connection conn) throws SQLException {
         boolean isInTransaction = conn != null;
         if (!isInTransaction) {
-            conn = this.getDataSource().getConnection();
+            conn = dataSource.getConnection();
         }
         String queryString = "DELETE FROM tasks WHERE parent_task_id=?;";
         PreparedStatement pst = null;
@@ -258,7 +313,7 @@ public class TaskModel extends Task {
     private boolean deleteTaskById(Connection conn) throws SQLException {
         boolean isInTransaction = conn != null;
         if (!isInTransaction) {
-            conn = this.getDataSource().getConnection();
+            conn = dataSource.getConnection();
         }
         String queryString = "DELETE FROM tasks WHERE task_id=?;";
         PreparedStatement pst = null;
@@ -302,7 +357,7 @@ public class TaskModel extends Task {
         List<TaskModel> tasks = new ArrayList<>();
         try {
 
-            con = this.getDataSource().getConnection();
+            con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
 
             pst.setInt(1, taskId);

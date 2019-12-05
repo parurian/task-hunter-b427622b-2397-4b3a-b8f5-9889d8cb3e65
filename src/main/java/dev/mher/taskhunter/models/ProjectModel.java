@@ -73,6 +73,7 @@ public class ProjectModel {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+
     public boolean isOwner() {
         return isOwner;
     }
@@ -141,6 +142,13 @@ public class ProjectModel {
         this.projectOwnersList = projectOwnersList;
     }
 
+    public ProjectOwnerModel getProjectOwnerModel() {
+        return projectOwnerModel;
+    }
+
+    public void setProjectOwnerModel(ProjectOwnerModel projectOwnerModel) {
+        this.projectOwnerModel = projectOwnerModel;
+    }
 
     public List<ProjectModel> list(int userId, int limit, int offset) {
 
@@ -187,6 +195,7 @@ public class ProjectModel {
         }
         return null;
     }
+
     public ProjectModel retrieve(Integer projectId, Integer userId) {
 
         String queryString = "SELECT p.project_id AS \"projectId\", name, p.created_at AS \"createdAt\",\n" +
@@ -321,12 +330,5 @@ public class ProjectModel {
         return isDeleted;
     }
 
-    public ProjectOwnerModel getProjectOwnerModel() {
-        return projectOwnerModel;
-    }
-
-    public void setProjectOwnerModel(ProjectOwnerModel projectOwnerModel) {
-        this.projectOwnerModel = projectOwnerModel;
-    }
 
 }

@@ -1,7 +1,8 @@
 package dev.mher.taskhunter.controllers.v1;
 
 import dev.mher.taskhunter.models.TaskModel;
-import dev.mher.taskhunter.models.misc.task.Task;
+import dev.mher.taskhunter.models.misc.task.CreateAssigneesParams;
+import dev.mher.taskhunter.models.misc.task.CreateTaskParams;
 import dev.mher.taskhunter.services.TaskService;
 import dev.mher.taskhunter.utils.ResponseUtils;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class TaskController {
     public ResponseEntity getTasks(
             @RequestParam int offset,
             @RequestParam int limit,
-            @RequestParam int projectId
+            @RequestParam(value = "projectId", required=false) Integer projectId
     ) {
         try {
             List<TaskModel> tasks = taskService.list(projectId, limit, offset);
@@ -58,7 +59,7 @@ public class TaskController {
 
     @PostMapping()
     public ResponseEntity createTask(
-            @RequestBody Task task
+            @RequestBody CreateTaskParams task
     ) {
         try {
             TaskModel taskModel = taskService.save(task);
@@ -95,11 +96,10 @@ public class TaskController {
     @PutMapping("/{taskId}")
     public ResponseEntity updateTask(
             @PathVariable("taskId") Integer taskId,
-            @RequestBody Task task
+            @RequestBody CreateTaskParams task
     ) {
         try {
-            task.setTaskId(taskId);
-            TaskModel taskModel = taskService.update(task);
+            TaskModel taskModel = taskService.update(taskId, task);
             if (taskModel == null) {
                 return ResponseEntity.ok(new ResponseUtils(true, "UPDATE_ERROR"));
             }
@@ -192,12 +192,4 @@ public class TaskController {
     }
 
 
-}
-
-class CreateAssigneesParams {
-    public int[] getAssigneeIds() {
-        return assigneeIds;
-    }
-
-    private int[] assigneeIds;
 }

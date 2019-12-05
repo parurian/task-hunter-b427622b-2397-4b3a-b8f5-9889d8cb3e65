@@ -1,0 +1,45 @@
+app:
+  frontend:
+    baseUrl: http://localhost:7668
+auth:
+  confirmationToken:
+    lifetime: 3
+  signInToken:
+    lifetime: 2592000
+cors:
+  allowed:
+    headers: X-Access-Token,Content-Type
+    methods: HEAD,GET,POST,PUT,DELETE,PATCH
+jdbc:
+  dataSourceUrl: jdbc:postgresql://localhost:5432/task_hunter
+  maximumPoolSize: 20
+  minimumIdle: 6
+  password: root
+  username: mher.paruyryan
+jsonWebToken:
+  lifetime: 3600
+  secret: jZ4fQyng4k!uw.ynyeM_49tZa9JeWcDjowkfvrwiwx8yhMe!Zwd_!wzzp_bo
+security:
+  password:
+    saltStrength: 12
+server:
+  port: 7667
+spring:
+  datasource:
+    password: root
+    url: jdbc:postgresql://localhost:5432/task_hunter
+    username: mher.paruyryan
+  jpa:
+    show-sql: true
+  mail:
+    from: task-hunter@mher.dev
+    host: smtp.yandex.ru
+    password: task-hunter147*
+    port: 465
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: true
+    username: task-hunter@mher.dev

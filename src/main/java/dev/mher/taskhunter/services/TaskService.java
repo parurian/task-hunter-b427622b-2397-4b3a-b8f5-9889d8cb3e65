@@ -94,4 +94,13 @@ public class TaskService {
             return null;
         }
     }
+
+
+    public List<TaskModel> listSubTasks(int taskId, int limit, int offset) {
+        try {
+            return this.taskModel.listSubTasks(taskId, limit, offset);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

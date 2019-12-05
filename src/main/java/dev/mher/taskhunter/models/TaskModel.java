@@ -281,4 +281,57 @@ public class TaskModel extends Task {
         return isDeleted;
     }
 
+
+    public List<TaskModel> listSubTasks(int taskId, int limit, int offset) {
+        String queryString = "SELECT task_id AS \"taskId\",\n" +
+                "       parent_task_id AS \"parentTaskId\",\n" +
+                "       project_id AS \"projectId\",\n" +
+                "       name,\n" +
+                "       text,\n" +
+                "       created_at AS \"createdAt\",\n" +
+                "       updated_at AS \"updatedAt\"\n" +
+                "FROM tasks\n" +
+                "WHERE parent_task_id=?\n" +
+                "LIMIT ?\n" +
+                "OFFSET ?;";
+
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+
+        List<TaskModel> tasks = new ArrayList<>();
+        try {
+
+            con = this.getDataSource().getConnection();
+            pst = con.prepareStatement(queryString);
+
+            pst.setInt(1, taskId);
+            pst.setInt(2, limit);
+            pst.setInt(3, offset);
+
+            rs = pst.executeQuery();
+            if (rs != null) {
+                while (rs.next()) {
+                    TaskModel task = new TaskModel();
+                    task.setTaskId(rs.getInt("taskId"));
+                    task.setProjectId(rs.getInt("projectId"));
+                    task.setParentTaskId(rs.getInt("name"));
+                    task.setName(rs.getString("name"));
+                    task.setText(rs.getString("text"));
+                    task.setCreatedAt(rs.getTimestamp("createdAt"));
+                    task.setUpdatedAt(rs.getTimestamp("updatedAt"));
+
+                    tasks.add(task);
+                }
+                return tasks;
+            }
+        } catch (SQLException e) {
+            logger.info(e.getMessage());
+            logger.error(e.getMessage(), e);
+        } finally {
+            DataSourceUtils.closeConnection(con, pst, rs);
+        }
+        return tasks;
+    }
+
 }

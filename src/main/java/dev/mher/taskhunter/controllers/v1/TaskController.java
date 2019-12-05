@@ -132,4 +132,26 @@ public class TaskController {
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
     }
 
+
+
+    @GetMapping("/{taskId}/sub-tasks")
+    public ResponseEntity listSubTasks(
+            @PathVariable("taskId") Integer taskId,
+            @RequestParam int offset,
+            @RequestParam int limit
+            ) {
+        try {
+            List<TaskModel> tasks = taskService.listSubTasks(taskId, limit, offset);
+            if (tasks == null) {
+                return ResponseEntity.ok(new ResponseUtils(true, "SUB_TASKS_LIST_ERROR"));
+            }
+            return ResponseEntity.ok(new ResponseUtils(tasks));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            logger.error(e.getMessage(), e);
+        }
+        return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
+    }
+
+
 }

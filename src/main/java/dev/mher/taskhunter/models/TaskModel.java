@@ -142,7 +142,7 @@ public class TaskModel {
                 "       created_at AS \"createdAt\",\n" +
                 "       updated_at AS \"updatedAt\"\n" +
                 "FROM tasks\n" +
-                "WHERE (?::INT IS NULL OR project_id=?)\n" +
+                "WHERE (?::INT IS NULL OR project_id=?) ORDER BY created_at DESC\n " +
                 "LIMIT ?\n" +
                 "OFFSET ?;";
 
@@ -346,7 +346,7 @@ public class TaskModel {
                 "       created_at AS \"createdAt\",\n" +
                 "       updated_at AS \"updatedAt\"\n" +
                 "FROM tasks\n" +
-                "WHERE parent_task_id=?\n" +
+                "WHERE parent_task_id=? ORDER BY created_at DESC \n" +
                 "LIMIT ?\n" +
                 "OFFSET ?;";
 
@@ -370,7 +370,7 @@ public class TaskModel {
                     TaskModel task = new TaskModel();
                     task.setTaskId(rs.getInt("taskId"));
                     task.setProjectId(rs.getInt("projectId"));
-                    task.setParentTaskId(rs.getInt("name"));
+                    task.setParentTaskId(rs.getInt("parentTaskId"));
                     task.setName(rs.getString("name"));
                     task.setText(rs.getString("text"));
                     task.setCreatedAt(rs.getTimestamp("createdAt"));
@@ -387,9 +387,5 @@ public class TaskModel {
             DataSourceUtils.closeConnection(con, pst, rs);
         }
         return tasks;
-    }
-
-    public void createAssignees(int taskId, int userId, int[] assigneeIds) {
-//        return null;
     }
 }

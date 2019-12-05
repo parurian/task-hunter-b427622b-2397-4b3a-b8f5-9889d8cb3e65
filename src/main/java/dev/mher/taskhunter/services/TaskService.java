@@ -1,5 +1,6 @@
 package dev.mher.taskhunter.services;
 
+import dev.mher.taskhunter.models.TaskAssigneeModel;
 import dev.mher.taskhunter.models.TaskModel;
 import dev.mher.taskhunter.models.misc.task.CreateTaskParams;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,12 @@ public class TaskService {
 
     private final TaskModel taskModel;
 
+    private final TaskAssigneeModel taskAssigneeModel;
+
     @Autowired
-    public TaskService(TaskModel taskModel) {
+    public TaskService(TaskModel taskModel, TaskAssigneeModel taskAssigneeModel) {
         this.taskModel = taskModel;
+        this.taskAssigneeModel = taskAssigneeModel;
     }
 
     public TaskModel save(CreateTaskParams task) {
@@ -97,7 +101,7 @@ public class TaskService {
     }
 
 
-    public List<TaskModel> listSubTasks(int taskId, int limit, int offset) {
+    public List<TaskModel> listSubTasks(Integer taskId, Integer limit, Integer offset) {
         try {
             return this.taskModel.listSubTasks(taskId, limit, offset);
         } catch (Exception e) {
@@ -105,11 +109,28 @@ public class TaskService {
         }
     }
 
-    public void createAssignees(int taskId, int userId, int[] assigneeIds) {
+    public boolean createAssignees(int taskId, int userId, int[] assigneeIds) {
         try {
-            this.taskModel.createAssignees(taskId, userId, assigneeIds);
+            taskAssigneeModel.createAssignees(taskId, userId, assigneeIds);
+            return true;
         } catch (Exception e) {
-//            return null;
+            return false;
+        }
+    }
+
+    public List<TaskAssigneeModel> listTaskAssignees(Integer taskId, Integer limit, Integer offset) {
+        try {
+            return taskAssigneeModel.listAssignees(taskId, limit, offset);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public boolean deleteAssignee(int taskId, int taskAssigneeId, int userId) {
+        try {
+            return taskAssigneeModel.deleteAssignee(taskId, taskAssigneeId, userId);
+        } catch (Exception e) {
+            return false;
         }
     }
 }

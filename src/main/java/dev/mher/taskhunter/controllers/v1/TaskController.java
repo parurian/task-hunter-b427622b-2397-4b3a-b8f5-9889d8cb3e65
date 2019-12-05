@@ -1,5 +1,6 @@
 package dev.mher.taskhunter.controllers.v1;
 
+import dev.mher.taskhunter.models.TaskAssigneeModel;
 import dev.mher.taskhunter.models.TaskModel;
 import dev.mher.taskhunter.models.misc.task.CreateAssigneesParams;
 import dev.mher.taskhunter.models.misc.task.CreateTaskParams;
@@ -42,7 +43,7 @@ public class TaskController {
     public ResponseEntity getTasks(
             @RequestParam int offset,
             @RequestParam int limit,
-            @RequestParam(value = "projectId", required=false) Integer projectId
+            @RequestParam(value = "projectId", required = false) Integer projectId
     ) {
         try {
             List<TaskModel> tasks = taskService.list(projectId, limit, offset);
@@ -151,19 +152,18 @@ public class TaskController {
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
     }
 
-
-    @GetMapping("/{taskId}/assignees")
-    public ResponseEntity listAssignees(
+    @PostMapping("/{taskId}/assignees")
+    public ResponseEntity createAssignees(
+            @AuthenticationPrincipal Integer userId,
             @PathVariable("taskId") int taskId,
-            @RequestParam int offset,
-            @RequestParam int limit
+            @RequestBody CreateAssigneesParams createAssigneesParams
     ) {
         try {
-            List<TaskModel> tasks = taskService.listSubTasks(taskId, limit, offset);
-            if (tasks == null) {
-                return ResponseEntity.ok(new ResponseUtils(true, "SUB_TASKS_LIST_ERROR"));
-            }
-            return ResponseEntity.ok(new ResponseUtils(tasks));
+            boolean isSucceed = taskService.createAssignees(taskId, userId, createAssigneesParams.getAssigneeIds());
+//            if (taskAssignees == null) {
+//                return ResponseEntity.ok(new ResponseUtils(true, "ASSIGNEES_CREATE_ERROR"));
+//            }
+            return ResponseEntity.ok(new ResponseUtils(isSucceed));
         } catch (Exception e) {
             logger.info(e.getMessage());
             logger.error(e.getMessage(), e);
@@ -172,18 +172,36 @@ public class TaskController {
     }
 
 
-    @PostMapping("/{taskId}/assignees")
-    public ResponseEntity createAssignees(
-            @AuthenticationPrincipal Integer userId,
+    @GetMapping("/{taskId}/assignees")
+    public ResponseEntity listAssignees(
             @PathVariable("taskId") int taskId,
-            @RequestBody CreateAssigneesParams createAssigneesParams
+            @RequestParam int offset,
+            @RequestParam int limit
     ) {
         try {
-            taskService.createAssignees(taskId, userId, createAssigneesParams.getAssigneeIds());
-//            if (tasks == null) {
-//                return ResponseEntity.ok(new ResponseUtils(true, "ASSIGNEES_CREATE_ERROR"));
-//            }
-            return ResponseEntity.ok(new ResponseUtils("ok"));
+            List<TaskAssigneeModel> taskAssignees = taskService.listTaskAssignees(taskId, limit, offset);
+            if (taskAssignees == null) {
+                return ResponseEntity.ok(new ResponseUtils(true, "ASSIGNEES_LIST_ERROR"));
+            }
+            return ResponseEntity.ok(new ResponseUtils(taskAssignees));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            logger.error(e.getMessage(), e);
+        }
+        return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
+    }
+
+
+    @DeleteMapping("/{taskId}/assignees/{taskAssigneeId}")
+    public ResponseEntity deleteAssignee(
+            @AuthenticationPrincipal Integer userId,
+            @PathVariable("taskId") int taskId,
+            @PathVariable("taskAssigneeId") int taskAssigneeId
+    ) {
+        try {
+            boolean isDeleted = taskService.deleteAssignee(taskId, taskAssigneeId, userId);
+
+            return ResponseEntity.ok(new ResponseUtils(isDeleted));
         } catch (Exception e) {
             logger.info(e.getMessage());
             logger.error(e.getMessage(), e);

@@ -34,6 +34,7 @@ public class ProjectModel {
     private List<ProjectOwnerModel> projectOwnersList = new ArrayList<>();
 
     private DataSource dataSource;
+
     private ProjectOwnerModel projectOwnerModel;
 
     public ProjectModel() {
@@ -201,8 +202,8 @@ public class ProjectModel {
             con = dataSource.getConnection();
 
             pst = con.prepareStatement(queryString);
-            pst.setInt(1, projectId);
             pst.setInt(1, userId);
+            pst.setInt(2, projectId);
 
             rs = pst.executeQuery();
             if (rs != null && rs.next()) {
@@ -224,7 +225,7 @@ public class ProjectModel {
         return null;
     }
 
-    public boolean update() {
+    public boolean update(ProjectModel model) {
         String queryString = "UPDATE projects SET name=? WHERE project_id=?;";
         Connection con = null;
         PreparedStatement pst = null;
@@ -232,8 +233,8 @@ public class ProjectModel {
         try {
             con = dataSource.getConnection();
             pst = con.prepareStatement(queryString);
-            pst.setString(1, getName());
-            pst.setInt(2, getProjectId());
+            pst.setString(1, model.getName());
+            pst.setInt(2, model.getProjectId());
             isUpdated = pst.executeUpdate() != 0;
         } catch (SQLException e) {
             logger.info(e.getMessage());
@@ -244,16 +245,16 @@ public class ProjectModel {
         return isUpdated;
     }
 
-    public boolean delete() throws SQLException {
+    public boolean delete(ProjectModel model) throws SQLException {
         Connection conn = null;
         try {
             conn = this.dataSource.getConnection();
             conn.setAutoCommit(false);
             // delete owners
-            this.projectOwnerModel.setProjectId(getProjectId());
-            this.projectOwnerModel.deleteOwnersByProjectId(conn);
+            projectOwnerModel.setProjectId(model.getProjectId());
+            projectOwnerModel.deleteOwnersByProjectId(conn);
             // delete project
-            this.deleteProjectById(conn);
+            model.deleteProjectById(conn);
             // finalize transaction
             conn.commit();
         } catch (SQLException e) {
@@ -278,7 +279,7 @@ public class ProjectModel {
         boolean isDeleted = false;
         try {
             pst = conn.prepareStatement(queryString);
-            pst.setInt(1, getProjectId());
+            pst.setInt(1, this.getProjectId());
             isDeleted = pst.execute();
             if (isInTransaction) {
                 DataSourceUtils.closeConnection(null, pst, null);
@@ -292,6 +293,40 @@ public class ProjectModel {
             }
         }
         return isDeleted;
+    }
+
+    private boolean deleteProjectTasks(Connection conn) throws SQLException {
+        boolean isInTransaction = conn != null;
+        if (!isInTransaction) {
+            conn = dataSource.getConnection();
+        }
+        String queryString = "DELETE FROM tasks WHERE project_id=?;";
+        PreparedStatement pst = null;
+        boolean isDeleted = false;
+        try {
+            pst = conn.prepareStatement(queryString);
+            pst.setInt(1, this.getProjectId());
+            isDeleted = pst.execute();
+            if (isInTransaction) {
+                DataSourceUtils.closeConnection(null, pst, null);
+            }
+        } catch (SQLException e) {
+            logger.info(e.getMessage());
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (!isInTransaction) {
+                DataSourceUtils.closeConnection(conn, pst, null);
+            }
+        }
+        return isDeleted;
+    }
+
+    public ProjectOwnerModel getProjectOwnerModel() {
+        return projectOwnerModel;
+    }
+
+    public void setProjectOwnerModel(ProjectOwnerModel projectOwnerModel) {
+        this.projectOwnerModel = projectOwnerModel;
     }
 
 }

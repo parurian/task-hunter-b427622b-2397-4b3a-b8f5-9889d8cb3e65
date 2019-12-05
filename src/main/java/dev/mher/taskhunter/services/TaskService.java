@@ -103,4 +103,12 @@ public class TaskService {
             return null;
         }
     }
+
+    public void createAssignees(int taskId, int userId, int[] assigneeIds) {
+        try {
+            this.taskModel.createAssignees(taskId, userId, assigneeIds);
+        } catch (Exception e) {
+//            return null;
+        }
+    }
 }

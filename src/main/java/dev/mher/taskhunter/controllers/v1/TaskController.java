@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -73,7 +74,6 @@ public class TaskController {
     }
 
 
-
     @GetMapping("/{taskId}")
     public ResponseEntity retrieveTask(
             @PathVariable("taskId") Integer taskId
@@ -90,7 +90,6 @@ public class TaskController {
         }
         return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
     }
-
 
 
     @PutMapping("/{taskId}")
@@ -133,13 +132,12 @@ public class TaskController {
     }
 
 
-
     @GetMapping("/{taskId}/sub-tasks")
     public ResponseEntity listSubTasks(
             @PathVariable("taskId") Integer taskId,
             @RequestParam int offset,
             @RequestParam int limit
-            ) {
+    ) {
         try {
             List<TaskModel> tasks = taskService.listSubTasks(taskId, limit, offset);
             if (tasks == null) {
@@ -154,4 +152,52 @@ public class TaskController {
     }
 
 
+    @GetMapping("/{taskId}/assignees")
+    public ResponseEntity listAssignees(
+            @PathVariable("taskId") int taskId,
+            @RequestParam int offset,
+            @RequestParam int limit
+    ) {
+        try {
+            List<TaskModel> tasks = taskService.listSubTasks(taskId, limit, offset);
+            if (tasks == null) {
+                return ResponseEntity.ok(new ResponseUtils(true, "SUB_TASKS_LIST_ERROR"));
+            }
+            return ResponseEntity.ok(new ResponseUtils(tasks));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            logger.error(e.getMessage(), e);
+        }
+        return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
+    }
+
+
+    @PostMapping("/{taskId}/assignees")
+    public ResponseEntity createAssignees(
+            @AuthenticationPrincipal Integer userId,
+            @PathVariable("taskId") int taskId,
+            @RequestBody CreateAssigneesParams createAssigneesParams
+    ) {
+        try {
+            taskService.createAssignees(taskId, userId, createAssigneesParams.getAssigneeIds());
+//            if (tasks == null) {
+//                return ResponseEntity.ok(new ResponseUtils(true, "ASSIGNEES_CREATE_ERROR"));
+//            }
+            return ResponseEntity.ok(new ResponseUtils("ok"));
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            logger.error(e.getMessage(), e);
+        }
+        return ResponseEntity.ok(new ResponseUtils(true, "UNKNOWN_ERROR"));
+    }
+
+
+}
+
+class CreateAssigneesParams {
+    public int[] getAssigneeIds() {
+        return assigneeIds;
+    }
+
+    private int[] assigneeIds;
 }

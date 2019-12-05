@@ -334,4 +334,7 @@ public class TaskModel extends Task {
         return tasks;
     }
 
+    public void createAssignees(int taskId, int userId, int[] assigneeIds) {
+//        return null;
+    }
 }

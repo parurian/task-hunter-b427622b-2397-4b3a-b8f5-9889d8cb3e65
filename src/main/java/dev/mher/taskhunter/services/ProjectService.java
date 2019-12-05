@@ -26,6 +26,7 @@ public class ProjectService {
 
     public ProjectModel save(int userId, String name) {
         this.projectModel.setName(name);
+        this.projectModel.setOwner(true);
         try {
             return this.projectModel.save(userId);
         } catch (Exception e) {
@@ -51,21 +52,21 @@ public class ProjectService {
 
     public ProjectModel update(Integer projectId, Integer userId, String name) {
         try {
-            ProjectModel projectModel = this.retrieve(projectId, userId);
-            if (projectModel == null) {
+            ProjectModel model = projectModel.retrieve(projectId, userId);
+            if (model == null) {
                 // invalid project
                 return null;
             }
-            if (!projectModel.isOwner()) {
+            if (!model.isOwner()) {
                 // user isn't owner
                 return null;
             }
-            projectModel.setName(name);
-            if (!projectModel.update()) {
+            model.setName(name);
+            if (!projectModel.update(model)) {
                 // unknown error
                 return null;
             }
-            return projectModel;
+            return model;
         } catch (Exception e) {
             return null;
         }
@@ -74,16 +75,16 @@ public class ProjectService {
 
     public Boolean delete(Integer projectId, Integer userId) {
         try {
-            ProjectModel projectModel = this.retrieve(projectId, userId);
-            if (projectModel == null) {
+            ProjectModel model = projectModel.retrieve(projectId, userId);
+            if (model == null) {
                 // invalid project
                 return null;
             }
-            if (!projectModel.isOwner()) {
+            if (!model.isOwner()) {
                 // user isn't owner
                 return null;
             }
-            if (!projectModel.delete()) {
+            if (!projectModel.delete(model)) {
                 // unknown error
                 return null;
             }

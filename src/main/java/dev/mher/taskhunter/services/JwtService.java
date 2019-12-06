@@ -32,6 +32,7 @@ public class JwtService {
     @Value("${jsonWebToken.lifetime}")
     private int lifetime;
 
+
     public CharSequence encode(String s, long lifetime) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);

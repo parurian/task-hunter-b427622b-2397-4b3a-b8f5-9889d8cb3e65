@@ -1,7 +1,5 @@
 package dev.mher.taskhunter.utils;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +11,6 @@ import java.util.Map;
  * Package: dev.mher.taskhunter.utils.
  */
 
-@Component
 public class ResponseUtils {
 
     private boolean error;

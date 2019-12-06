@@ -1,25 +1,21 @@
 package dev.mher.taskhunter.config;
 
+import dev.mher.taskhunter.controllers.filters.AccessDeniedHandler;
 import dev.mher.taskhunter.controllers.filters.AuthenticationFilter;
-import dev.mher.taskhunter.services.CryptoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -34,10 +30,6 @@ import java.util.Collections;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final DataSource dataSource;
-    private final AuthenticationFilter authenticationFilter;
-    private final CryptoService cryptoService;
-
     @Value("${app.frontend.baseUrl}")
     private String frontendBaseUrl;
 
@@ -47,12 +39,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${cors.allowed.headers}")
     private String corsAllowedHeaders;
 
+    private final AuthenticationFilter authenticationFilter;
 
-    @Autowired
-    public SecurityConfig(DataSource dataSource, AuthenticationFilter authenticationFilter, CryptoService cryptoService) {
-        this.dataSource = dataSource;
+    public SecurityConfig(AuthenticationFilter authenticationFilter) {
         this.authenticationFilter = authenticationFilter;
-        this.cryptoService = cryptoService;
     }
 
     @Override
@@ -61,16 +51,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .cors()
                 .and()
-                    .addFilterBefore(authenticationFilter, BasicAuthenticationFilter.class)
-                    .exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .exceptionHandling().authenticationEntryPoint(accessDeniedHandler())
                 .and()
-                    .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                    .authorizeRequests()
-                    .antMatchers(HttpMethod.OPTIONS).permitAll()
-                    .antMatchers(HttpMethod.POST, "/v1/authentication/**").permitAll()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS).permitAll()
+                .antMatchers(HttpMethod.POST, "/v1/authentication/**").permitAll()
                 .anyRequest().authenticated();
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Bean
@@ -90,8 +81,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/**");
+    }
+
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandler();
     }
 
 }

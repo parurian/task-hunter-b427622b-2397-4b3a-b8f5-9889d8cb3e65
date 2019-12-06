@@ -1,7 +1,6 @@
 package dev.mher.taskhunter.controllers.filters;
 
 import dev.mher.taskhunter.services.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -13,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -26,15 +26,15 @@ import java.util.Optional;
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
 
+
     private final JwtService jwtService;
 
-    @Autowired
     public AuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         Optional.ofNullable(request.getHeader("X-Access-Token"))
                 .flatMap(token -> Optional.ofNullable(jwtService.decode(token)))
                 .ifPresent(output -> {
@@ -42,7 +42,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                     if (SecurityContextHolder.getContext().getAuthentication() == null) {
                         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                                 userId,
-                                null
+                                null,
+                                Collections.emptyList()
                         );
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

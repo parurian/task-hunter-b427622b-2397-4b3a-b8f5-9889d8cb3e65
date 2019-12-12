@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_uindex
-    ON users (email);
+    ON users(email);
 
 CREATE TABLE IF NOT EXISTS projects
 (
@@ -79,7 +79,11 @@ CREATE TABLE IF NOT EXISTS assignment_history
         CONSTRAINT assignment_history_assignee_id_fkey
             REFERENCES users,
     created_at            TIMESTAMP(0) WITH TIME ZONE DEFAULT now() NOT NULL,
-    is_attached           BOOLEAN                     DEFAULT TRUE  NOT NULL
+    is_attached           BOOLEAN                     DEFAULT TRUE  NOT NULL,
+    assigner_id           INTEGER                                   NOT NULL
+        CONSTRAINT assignment_history_users_user_id_fk
+            REFERENCES users
+            ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS project_owners

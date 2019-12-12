@@ -1,6 +1,8 @@
 package dev.mher.taskhunter.models;
 
 import dev.mher.taskhunter.utils.DataSourceUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import java.util.List;
  */
 
 @Component
+@Getter
+@Setter
 public class TaskModel {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskModel.class);
@@ -42,62 +46,6 @@ public class TaskModel {
     @Autowired
     public TaskModel(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Integer getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Integer taskId) {
-        this.taskId = taskId;
-    }
-
-    public Integer getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
-
-    public Integer getParentTaskId() {
-        return parentTaskId;
-    }
-
-    public void setParentTaskId(Integer parentTaskId) {
-        this.parentTaskId = parentTaskId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 
 

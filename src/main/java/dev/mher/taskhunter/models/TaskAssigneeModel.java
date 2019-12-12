@@ -1,6 +1,8 @@
 package dev.mher.taskhunter.models;
 
 import dev.mher.taskhunter.utils.DataSourceUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import java.util.List;
  * Package: dev.mher.taskhunter.models.
  */
 @Component
+@Getter
+@Setter
 public class TaskAssigneeModel {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskAssigneeModel.class);
@@ -41,41 +45,7 @@ public class TaskAssigneeModel {
         this.dataSource = dataSource;
     }
 
-    public Integer getTaskAssigneeId() {
-        return taskAssigneeId;
-    }
-
-    public void setTaskAssigneeId(Integer taskAssigneeId) {
-        this.taskAssigneeId = taskAssigneeId;
-    }
-
-    public Integer getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Integer taskId) {
-        this.taskId = taskId;
-    }
-
-    public Integer getAssigneeId() {
-        return assigneeId;
-    }
-
-    public void setAssigneeId(Integer assigneeId) {
-        this.assigneeId = assigneeId;
-    }
-
-    public Integer getAssignerId() {
-        return assignerId;
-    }
-
-    public void setAssignerId(Integer assignerId) {
-        this.assignerId = assignerId;
-    }
-
-
     public void createAssignees(int taskId, int userId, int[] assigneeIds) throws SQLException {
-//        List<TaskAssigneeModel> taskAssigneeModels = null;
         Connection conn = null;
         try {
             conn = this.dataSource.getConnection();
@@ -94,7 +64,6 @@ public class TaskAssigneeModel {
         } finally {
             DataSourceUtils.closeConnection(conn, null, null);
         }
-//        return taskAssigneeModels;
     }
 
 
@@ -235,7 +204,7 @@ public class TaskAssigneeModel {
     }
 
     private void deleteAssigneeById(Connection conn, int taskId, int taskAssigneeId) {
-        String queryString = "DELETE FROM task_assignees WHERE task_id=? AND task_assignee_id=?;";
+        String queryString = "DELETE FROM public.task_assignees WHERE task_id=? AND task_assignee_id=?;";
         PreparedStatement pst = null;
         try {
             pst = conn.prepareStatement(queryString);

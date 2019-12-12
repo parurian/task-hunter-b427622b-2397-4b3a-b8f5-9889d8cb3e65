@@ -2,8 +2,11 @@ package dev.mher.taskhunter.models;
 
 import dev.mher.taskhunter.services.AuthenticationService;
 import dev.mher.taskhunter.utils.DataSourceUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -18,6 +21,8 @@ import java.sql.*;
  */
 
 @Component
+@Getter
+@Setter
 public class ProjectOwnerModel {
     private int projectOwnerId;
     private int projectId;
@@ -28,40 +33,9 @@ public class ProjectOwnerModel {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
 
+    @Autowired
     public ProjectOwnerModel(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public int getProjectOwnerId() {
-        return projectOwnerId;
-    }
-
-    public void setProjectOwnerId(int projectOwnerId) {
-        this.projectOwnerId = projectOwnerId;
-    }
-
-    public int getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(int projectId) {
-        this.projectId = projectId;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
     }
 
     public ProjectOwnerModel insertProjectOwner(Connection conn) throws SQLException {

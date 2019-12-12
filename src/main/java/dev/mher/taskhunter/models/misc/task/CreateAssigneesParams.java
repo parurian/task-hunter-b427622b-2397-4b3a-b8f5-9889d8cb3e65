@@ -1,5 +1,8 @@
 package dev.mher.taskhunter.models.misc.task;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * User: MheR
  * Date: 12/5/19.
@@ -7,10 +10,8 @@ package dev.mher.taskhunter.models.misc.task;
  * Project: taskhunter.
  * Package: dev.mher.taskhunter.models.misc.task.
  */
+@Getter
+@Setter
 public class CreateAssigneesParams {
-    public int[] getAssigneeIds() {
-        return assigneeIds;
-    }
-
     private int[] assigneeIds;
 }

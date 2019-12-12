@@ -3,6 +3,7 @@ package dev.mher.taskhunter.controllers.v1;
 import dev.mher.taskhunter.models.ProjectModel;
 import dev.mher.taskhunter.services.ProjectService;
 import dev.mher.taskhunter.utils.ResponseUtils;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,9 +134,7 @@ public class ProjectController {
     }
 }
 
+@Getter
 class ProjectParams {
     private String name;
-    public String getName() {
-        return name;
-    }
 }

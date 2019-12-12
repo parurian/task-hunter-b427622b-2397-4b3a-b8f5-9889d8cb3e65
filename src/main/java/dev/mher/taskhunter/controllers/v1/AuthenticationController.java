@@ -4,6 +4,7 @@ import dev.mher.taskhunter.models.misc.authentication.SignInResponse;
 import dev.mher.taskhunter.services.AuthenticationService;
 import dev.mher.taskhunter.utils.RequestUtils;
 import dev.mher.taskhunter.utils.ResponseUtils;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -79,44 +80,16 @@ public class AuthenticationController {
 
 }
 
-// TODO Refactor
+@Getter
 class SignInParams {
     private String email;
     private String password;
     private Boolean rememberMe;
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Boolean getRememberMe() {
-        return rememberMe;
-    }
 }
-
+@Getter
 class SignUpParams {
     private String email;
     private String password;
     private String firstName;
     private String lastName;
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
 }

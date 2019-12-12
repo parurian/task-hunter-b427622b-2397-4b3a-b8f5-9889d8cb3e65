@@ -1,5 +1,8 @@
 package dev.mher.taskhunter.utils;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +14,8 @@ import java.util.Map;
  * Package: dev.mher.taskhunter.utils.
  */
 
+@Getter
+@Setter
 public class ResponseUtils {
 
     private boolean error;
@@ -36,31 +41,6 @@ public class ResponseUtils {
         response.put(key, value);
         this.result = response;
         this.error = false;
-    }
-
-
-    public boolean isError() {
-        return error;
-    }
-
-    public void setError(boolean error) {
-        this.error = error;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
     }
 
     @Override

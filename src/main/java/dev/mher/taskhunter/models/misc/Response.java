@@ -1,5 +1,8 @@
 package dev.mher.taskhunter.models.misc;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * User: MheR
  * Date: 12/4/19.
@@ -7,24 +10,9 @@ package dev.mher.taskhunter.models.misc;
  * Project: taskhunter.
  * Package: dev.mher.taskhunter.models.responses.
  */
+@Getter
+@Setter
 public class Response {
     private boolean error;
     private String message;
-
-    public boolean isError() {
-        return error;
-    }
-
-    public void setError(boolean error) {
-        this.error = error;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
 }

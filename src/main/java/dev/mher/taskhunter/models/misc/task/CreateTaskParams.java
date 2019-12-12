@@ -1,5 +1,8 @@
 package dev.mher.taskhunter.models.misc.task;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * User: MheR
  * Date: 12/5/19.
@@ -8,25 +11,11 @@ package dev.mher.taskhunter.models.misc.task;
  * Package: dev.mher.taskhunter.models.misc.task.
  */
 
+@Getter
+@Setter
 public class CreateTaskParams {
     private Integer projectId;
     private Integer parentTaskId;
     private String name;
     private String text;
-
-    public Integer getProjectId() {
-        return projectId;
-    }
-
-    public Integer getParentTaskId() {
-        return parentTaskId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getText() {
-        return text;
-    }
 }
